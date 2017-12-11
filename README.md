@@ -13,5 +13,7 @@ The repository is cloned in the `/home` folder. If you need to update it again, 
     
 We can have concurrent users in the same instance, but we should still sync up because it can mess up the machine if intensive work is done concurrently in the machine.
 
-The AWS instance will be up and running for the following day or two, **but it should be stopped when it's not actively used**. When the instance is re-run, the ip of the machine changes, so feel free to change the new ip at the top of the README :).
+The AWS instance will be up and running for the following day or two, **but it should be stopped when it's not actively used**. 
+
+When the instance is re-run, the ip of the machine changes, so feel free to change the new ip at the top of the README :).
 
