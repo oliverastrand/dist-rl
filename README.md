@@ -3,7 +3,7 @@
 ## AWS instructions
 In order to access the GPU instance, you'll need the `aws.pem` key pair (which is provided in the repository), and then:
 
-    ssh -i "aws.pem" ec2-user@ec2-34-240-203-16.eu-west-1.compute.amazonaws.com
+    ssh -i "aws.pem" ec2-user@ec2-54-77-132-117.eu-west-1.compute.amazonaws.com
 
 In order to activate the TensorFlow environment:
 
