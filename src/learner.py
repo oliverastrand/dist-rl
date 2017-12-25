@@ -43,7 +43,12 @@ class Learner:
         """
         Calculate the loss from outputs and targets, with given options
         """
-        return tf.losses.mean_squared_error(targets, outputs)
+        losses = {
+            'MSE': tf.losses.mean_squared_error,
+            'log_loss': tf.losses.log_loss,
+            'softmax_cross': tf.losses.softmax_cross_entropy,
+        }
+        return losses[options](targets, outputs)
 
     def calc_gradient(self, states, targets):
         """

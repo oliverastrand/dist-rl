@@ -1,6 +1,8 @@
 import gym
-from src.agent import Agent
-from src.learner import Learner
+
+from agent import Agent
+from learner import Learner
+
 env = gym.make("MountainCar-v0")
 options = {"env_size": (2, 4), "DNN": (5,), "env_actions": 3, "loss": "MSE"}
 learner = Learner(options)

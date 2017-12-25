@@ -1,27 +1,37 @@
 import gym
 import numpy as np
-from src.memory import Memory
+
+from memory import Memory
 
 class Agent:
 
-    def __init__(self, learner, environment: gym.ActionWrapper):
-        self.nr_actions = 3
-        self.nr_frames = 4
-        self.epsilon = 0.05
-        self.batch_size = 10
-        self.learning_rate = 0.1
+    def __init__(
+        self,
+        learner,
+        environment: gym.ActionWrapper,
+        epsilon=0.1,
+        nr_actions = 3,
+        nr_frames = 4,
+        batch_size = 10,
+        learning_rate = 0.1,
+        memory_size = 100,
+    ):
+        self.nr_actions = nr_actions
+        self.nr_frames = nr_frames
+        self.epsilon = epsilon
+        self.batch_size = batch_size
+        self.learning_rate = learning_rate
+        self.memory_size = memory_size
 
         self.learner = learner
         self.environment = environment
         self.state = self.initialize_state()
 
-        self.memory = Memory(100) # Save reference to memory
+        self.memory = Memory(self.memory_size) # Save reference to memory
         self.server_parameters = self.learner.weight_list # Save reference to parameter server.
         # The parameter server object currently needs get_weights and send_gradients methods
 
         self.populate_memory()
-
-
 
     def step(self, update_target: bool):
         """
@@ -52,9 +62,7 @@ class Agent:
         action = self.choose_action(self.state, self.epsilon)
         observation, reward, done, info = self.environment.step(action)
 
-        print(action)
-        print(reward)
-        print(observation)
+        print(action, reward, observation)
 
         new_state = self.make_new_state(self.state, observation)
 
@@ -116,8 +124,8 @@ class Agent:
             first_state[:, i], _, _, _ = self.environment.step(0)
         return first_state
 
-    def populate_memory(self, n=100):
-        for i in range(n):
+    def populate_memory(self):
+        for i in range(self.memory_size):
             self.act()
 
     # Functions that should belong to the parameter server
