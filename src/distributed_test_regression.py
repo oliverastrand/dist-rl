@@ -2,7 +2,7 @@ import tensorflow as tf
 import sys
 import numpy as np
 
-from src.regression_agent import RegressionAgent
+from regression_agent import RegressionAgent
 
 args = sys.argv
 
