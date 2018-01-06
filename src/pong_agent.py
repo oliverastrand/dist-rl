@@ -1,12 +1,13 @@
-import numpy as np
-import tensorflow as tf
-import random
 import gym
-from collections import deque
 import math
+import numpy as np
+import random
+import tensorflow as tf
 import time
 
-from src.pong_learner import Learner
+from collections import deque
+
+from pong_learner import Learner
 
 
 class Agent:

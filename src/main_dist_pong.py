@@ -1,8 +1,8 @@
-import tensorflow as tf
-import sys
 import numpy as np
+import sys
+import tensorflow as tf
 
-from src.pong_agent import Agent
+from pong_agent import Agent
 
 args = sys.argv
 
