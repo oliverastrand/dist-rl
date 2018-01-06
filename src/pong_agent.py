@@ -26,7 +26,9 @@ class Agent:
         self.n_win_ticks = n_win_ticks
         self.batch_size = batch_size
 
-        self.observation_space_shape = self.env.observation_space.shape
+        self.observation_space_shape = (210*4, 160, 3)#self.env.observation_space.shape
+        print("SUPSUP")
+        print(self.observation_space_shape)
         self.nr_actions = self.env.action_space.n
 
         self.learner = Learner(observation_shape=self.observation_space_shape,
@@ -45,7 +47,7 @@ class Agent:
         return max(self.epsilon_min, min(self.epsilon, 1.0 - math.log10((t + 1) * self.epsilon_decay)))
 
     def replay(self, batch_size, sess):
-        x_batch, y_batch = [], []
+        x_batch, y_batch = deque(maxlen=batch_size), deque(maxlen=batch_size)
         minibatch = random.sample(
             self.memory, min(len(self.memory), batch_size))
         for state, action, reward, next_state, done in minibatch:
@@ -65,10 +67,13 @@ class Agent:
 
     def make_next_state(self, frame):
         self.frame_queue.append(frame)
-        tensor = np.zeros(shape=(210, 160, 3, 4))
+        tensor = np.zeros(shape=(210*4, 160, 3))
         for i in range(4):
-            tensor[i, :, :, :] = self.frame_queue.pop()
-            self.frame_queue.appendleft(tensor[i, :, :, :])
+            temp = self.frame_queue.pop()
+            for j in range(210):
+            	tensor[i*j, :, :] =temp[j,:,:]
+
+            self.frame_queue.appendleft(temp)
 
         return tensor
 
