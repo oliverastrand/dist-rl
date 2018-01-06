@@ -6,7 +6,7 @@ from collections import deque
 import math
 import time
 
-from src.cartpole_learner import Learner
+from src.pong_learner import Learner
 
 
 class Agent:
