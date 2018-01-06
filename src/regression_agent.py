@@ -4,7 +4,7 @@ import random
 
 from collections import deque
 
-from src.regression_learner import RegressionLearner
+from regression_learner import RegressionLearner
 
 
 class RegressionAgent:
