@@ -9,7 +9,7 @@ args = sys.argv
 job_name = args[1]
 task_index = int(args[2])
 
-cluster_spec = tf.train.ClusterSpec({"ps": ["localhost:2222"], "worker": ["localhost:2223", "localhost:2224"]})
+cluster_spec = tf.train.ClusterSpec({"ps": ["52.212.213.61:2222"], "worker": ["52.212.213.61:2223", "34.249.47.8:2224"]})
 
 server = tf.train.Server(cluster_spec, job_name=job_name, task_index=task_index)
 
