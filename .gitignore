@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 *.ipynb
 *.DS_Store
+*.pem
 
 # C extensions
 *.so
