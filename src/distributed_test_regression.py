@@ -1,24 +1,21 @@
-import tensorflow as tf
-import sys
 import numpy as np
+import sys
+import tensorflow as tf
 
-from src.regression_agent import RegressionAgent
+from regression_agent import RegressionAgent
 
 args = sys.argv
 
 job_name = args[1]
 task_index = int(args[2])
 
-cluster_spec = tf.train.ClusterSpec({"ps": ["localhost:2222"], "worker": ["localhost:2223", "localhost:2224"]})
+cluster_spec = tf.train.ClusterSpec({"ps": ["localhost:2220"], "worker": ["localhost:2230", "localhost:2231", "localhost:2232"]})
 
 server = tf.train.Server(cluster_spec, job_name=job_name, task_index=task_index)
-
 
 if job_name == "ps":
     print("Starting server")
     server.join()
-print(1)
-
 
 worker_device = "/job:worker/task:{}".format(task_index)
 device = tf.train.replica_device_setter(cluster=cluster_spec, worker_device=worker_device)

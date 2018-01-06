@@ -1,10 +1,10 @@
 import numpy as np
-import tensorflow as tf
 import random
+import tensorflow as tf
 
 from collections import deque
 
-from src.regression_learner import RegressionLearner
+from regression_learner import RegressionLearner
 
 
 class RegressionAgent:

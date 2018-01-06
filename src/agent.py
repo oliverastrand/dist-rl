@@ -15,6 +15,7 @@ class Agent:
         batch_size = 10,
         learning_rate = 0.1,
         memory_size = 100,
+        verbose = True,
     ):
         self.nr_actions = nr_actions
         self.nr_frames = nr_frames
@@ -22,6 +23,7 @@ class Agent:
         self.batch_size = batch_size
         self.learning_rate = learning_rate
         self.memory_size = memory_size
+        self.verbose = verbose
 
         self.learner = learner
         self.environment = environment
@@ -62,7 +64,7 @@ class Agent:
         action = self.choose_action(self.state, self.epsilon)
         observation, reward, done, info = self.environment.step(action)
 
-        print(action, reward, observation)
+        print(action, reward, observation) if self.verbose else None
 
         new_state = self.make_new_state(self.state, observation)
 
