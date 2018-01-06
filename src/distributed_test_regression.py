@@ -4,39 +4,62 @@ import tensorflow as tf
 
 from regression_agent import RegressionAgent
 
-args = sys.argv
+import argparse
 
-job_name = args[1]
-task_index = int(args[2])
+def parse_args():
+    parser = argparse.ArgumentParser()
 
-cluster_spec = tf.train.ClusterSpec({"ps": ["localhost:2220"], "worker": ["localhost:2230", "localhost:2231", "localhost:2232"]})
+    # Distribution
+    parser.add_argument('--ps_hosts',
+    help='Parameter Servers. Comma separated list of host:port pairs')
+    parser.add_argument('--worker_hosts',
+    help='Worker hosts. Comma separated list of host:port pairs')
+    parser.add_argument('--job', choices=['ps', 'worker'],
+    help='Whether this instance is a param server or a worker')
+    parser.add_argument('--task_id', type=int,
+    help='Index of this task within the job')
+    parser.add_argument('--gpu_id', type=int,
+    help='Index of the GPU to run the training on')
 
-server = tf.train.Server(cluster_spec, job_name=job_name, task_index=task_index)
+    # Summary
+    parser.add_argument('--logdir', default='/tmp/train_logs',
+    help='Directory for training summary and logs')
 
-if job_name == "ps":
-    print("Starting server")
-    server.join()
+    return parser.parse_args()
 
-worker_device = "/job:worker/task:{}".format(task_index)
-device = tf.train.replica_device_setter(cluster=cluster_spec, worker_device=worker_device)
-target = server.target
+if __name__ == '__main__':
+    args = parse_args()
 
-with tf.device(device):
-    agent = RegressionAgent()
+    ps_hosts = args.ps_hosts.split(',') if args.ps_hosts else []
+    worker_hosts = args.worker_hosts.split(',') if args.worker_hosts else []
+    print(args.ps_hosts, args.worker_hosts)
+    cluster_spec = tf.train.ClusterSpec({'ps': ps_hosts, 'worker': worker_hosts})
 
+    server = tf.train.Server(cluster_spec, job_name=args.job, task_index=args.task_id)
 
-hooks = [tf.train.StopAtStepHook(last_step=2000)]
+    task_index = args.task_id
 
-with tf.train.MonitoredTrainingSession(master=target,
-                                       is_chief=(task_index == 0),
-                                       hooks=hooks) as sess:
-    if task_index == 0:
-        agent.init_params(sess)
-
-    while not sess.should_stop():
-        agent.play_and_train_epoch(sess)
-
-    if task_index == 0:
+    if args.job == 'ps':
+        print("Starting server")
         server.join()
 
+    worker_device = "/job:worker/task:{}".format(args.task_id)
+    device = tf.train.replica_device_setter(cluster=cluster_spec, worker_device=worker_device)
+    target = server.target
 
+    with tf.device(device):
+        agent = RegressionAgent()
+
+    hooks = [tf.train.StopAtStepHook(last_step=2000)]
+
+    with tf.train.MonitoredTrainingSession(master=target,
+                                           is_chief=(task_index == 0),
+                                           hooks=hooks) as sess:
+        if task_index == 0:
+            agent.init_params(sess)
+
+        while not sess.should_stop():
+            agent.play_and_train_epoch(sess)
+
+        if task_index == 0:
+            server.join()
