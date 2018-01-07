@@ -95,13 +95,9 @@ class Agent:
                 self.remember(state, action, reward, next_state, done)
                 state = next_state
 
-                i += 1
-                print(reward)
+                i += reward
 
-            scores.append(i)
-            mean_score = np.mean(scores)
-      
-            print('[Episode {}] - Mean survival time over last 100 episodes was {} ticks.'.format(e, mean_score))
+            print('[Episode {}] - Score acquired by our Space Gorila: {}.'.format(e, i))
 
             self.replay(self.batch_size, sess)
 
