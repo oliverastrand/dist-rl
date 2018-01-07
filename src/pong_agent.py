@@ -1,11 +1,10 @@
-import gym
-import math
 import numpy as np
-import random
 import tensorflow as tf
-import time
-
+import random
+import gym
 from collections import deque
+import math
+import time
 
 from pong_learner import Learner
 
@@ -13,7 +12,7 @@ from pong_learner import Learner
 class Agent:
 
     def __init__(self, n_win_ticks=195, gamma=1.0, epsilon=1.0, epsilon_min=0.01,
-                 epsilon_log_decay=0.995, alpha=0.01, alpha_decay=0.01, batch_size=64, monitor=False):
+                 epsilon_log_decay=0.995, alpha=0.01, alpha_decay=0.01, batch_size=256, monitor=False):
         self.memory = deque(maxlen=100000)
         self.env = gym.make('Pong-v0')
         if monitor: self.env = gym.wrappers.Monitor(self.env, '../data/cartpole-1', force=True)
@@ -26,9 +25,7 @@ class Agent:
         self.n_win_ticks = n_win_ticks
         self.batch_size = batch_size
 
-        self.observation_space_shape = (210*4, 160, 3)#self.env.observation_space.shape
-        print("SUPSUP")
-        print(self.observation_space_shape)
+        self.observation_space_shape = (210,160,3,4)#self.env.observation_space.shape
         self.nr_actions = self.env.action_space.n
 
         self.learner = Learner(observation_shape=self.observation_space_shape,
@@ -47,7 +44,7 @@ class Agent:
         return max(self.epsilon_min, min(self.epsilon, 1.0 - math.log10((t + 1) * self.epsilon_decay)))
 
     def replay(self, batch_size, sess):
-        x_batch, y_batch = deque(maxlen=batch_size), deque(maxlen=batch_size)
+        x_batch, y_batch = [], []
         minibatch = random.sample(
             self.memory, min(len(self.memory), batch_size))
         for state, action, reward, next_state, done in minibatch:
@@ -67,13 +64,10 @@ class Agent:
 
     def make_next_state(self, frame):
         self.frame_queue.append(frame)
-        tensor = np.zeros(shape=(210*4, 160, 3))
+        tensor = np.zeros(shape=(210, 160, 3, 4))
         for i in range(4):
-            temp = self.frame_queue.pop()
-            for j in range(210):
-            	tensor[i*j, :, :] =temp[j,:,:]
-
-            self.frame_queue.appendleft(temp)
+            tensor[:, :, :, i] = self.frame_queue.pop()
+            self.frame_queue.appendleft(tensor[:, :, :, i])
 
         return tensor
 
@@ -102,11 +96,12 @@ class Agent:
                 state = next_state
 
                 i += 1
+                print(reward)
 
             scores.append(i)
             mean_score = np.mean(scores)
-            if e % 100 == 0:
-                print('[Episode {}] - Mean survival time over last 100 episodes was {} ticks.'.format(e, mean_score))
+      
+            print('[Episode {}] - Mean survival time over last 100 episodes was {} ticks.'.format(e, mean_score))
 
             self.replay(self.batch_size, sess)
 
