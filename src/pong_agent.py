@@ -1,10 +1,12 @@
-import numpy as np
-import tensorflow as tf
-import random
 import gym
-from collections import deque
 import math
+import numpy as np
+import random
+import requests
+import tensorflow as tf
 import time
+
+from collections import deque
 
 from pong_learner import Learner
 
@@ -98,6 +100,7 @@ class Agent:
                 i += reward
 
             print('[Episode {}] - Score acquired by our Space Gorila: {}.'.format(e, i))
+            r = requests.post('https://requestb.in/17geqlb1', data={"episode": e, "score":})
 
             self.replay(self.batch_size, sess)
 
