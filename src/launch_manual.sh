@@ -3,7 +3,3 @@ python main_dist_pong.py worker 0 &
 python main_dist_pong.py worker 1 &
 python main_dist_pong.py worker 2 &
 python main_dist_pong.py worker 3 &
-python main_dist_pong.py worker 4 &
-python main_dist_pong.py worker 5 &
-python main_dist_pong.py worker 6 &
-python main_dist_pong.py worker 7 &

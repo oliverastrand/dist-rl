@@ -100,7 +100,7 @@ class Agent:
                 i += reward
 
             print('[Episode {}] - Score acquired by our Space Gorila: {}.'.format(e, i))
-            r = requests.post('https://requestb.in/zs11l7zs', data={"episode": e, "score":})
+            r = requests.post('https://requestb.in/zs11l7zs', data={"episode": e, "score": i})
 
             self.replay(self.batch_size, sess)
 
