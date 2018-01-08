@@ -7,7 +7,7 @@ import time
 
 from collections import deque
 
-from src.cartpole_learner import Learner
+from cartpole_learner import Learner
 
 
 class Agent:
@@ -77,7 +77,6 @@ class Agent:
                 next_state, reward, done, _ = self.env.step(action)
                 self.remember(state, action, reward, next_state, done)
                 state = next_state
-
                 i += 1
 
             scores.append(i)
