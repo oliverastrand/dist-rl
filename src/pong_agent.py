@@ -27,7 +27,7 @@ class Agent:
         self.batch_size = batch_size
         self.writer = tf.summary.FileWriter('/tmp/pong')
         self.task = task
-
+        
         self.observation_space_shape = (210,160,3,4)#self.env.observation_space.shape
         self.nr_actions = self.env.action_space.n
 
@@ -35,6 +35,7 @@ class Agent:
                                nr_actions=self.nr_actions)
 
         self.frame_queue = deque(maxlen=4)
+        self.prefill_length = 1000
 
     def init_params(self, sess: tf.Session):
         self.learner.init_params(sess)
@@ -82,11 +83,21 @@ class Agent:
             self.frame_queue.append(frame)
         frame, _, _, _ = self.env.step(self.env.action_space.sample())
         return self.make_next_state(frame)
-
+    
+    def prefill_memory(self, sess):
+        state = self.make_first_state()
+        while len(memory)<self.prefill_length:
+            done = False
+            while not done or length(memory)<self.prefill_length:
+                action = self.choose_action(state, 1, sess)
+                frame, reward, done, _ = self.env.step(action)
+                next_state = self.make_next_state(frame)
+                self.remember(state, action, reward, next_state, done)
+                state = next_state
 
     def run_episodes(self, sess, n_episodes=1000):
         scores = deque(maxlen=100)
-
+        self.prefill_memory(sess)
         for e in range(n_episodes):
             state = self.make_first_state()
             done = False
