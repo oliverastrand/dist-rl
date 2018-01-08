@@ -12,8 +12,8 @@ from pong_learner import Learner
 
 class Agent:
 
-    def __init__(self, n_win_ticks=195, gamma=1.0, epsilon=1.0, epsilon_min=0.01,
-                 epsilon_log_decay=0.995, alpha=0.01, alpha_decay=0.01, batch_size=256, monitor=False, task):
+    def __init__(self, task, n_win_ticks=195, gamma=1.0, epsilon=1.0, epsilon_min=0.01,
+                 epsilon_log_decay=0.995, alpha=0.01, alpha_decay=0.01, batch_size=256, monitor=False):
         self.memory = deque(maxlen=10000)
         self.env = gym.make('Pong-v0')
         if monitor: self.env = gym.wrappers.Monitor(self.env, '../data/cartpole-1', force=True)
