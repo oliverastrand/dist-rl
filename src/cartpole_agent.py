@@ -84,7 +84,7 @@ class Agent:
             mean_score = np.mean(scores)
             if e % 100 == 0:
                 print('[Episode {}] - Mean survival time over last 100 episodes was {} ticks.'.format(e, mean_score))
-                summary = tf.Summary(value=[tf.Summary.Value(tag=f'score_{self.task}', simple_value=i)])
+                summary = tf.Summary(value=[tf.Summary.Value(tag=f'score_{self.task}', simple_value=mean_score)])
                 self.writer.add_summary(summary, e)
 
             self.replay(self.batch_size, sess)
