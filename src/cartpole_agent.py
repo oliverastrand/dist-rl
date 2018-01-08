@@ -1,10 +1,11 @@
-import numpy as np
-import tensorflow as tf
-import random
 import gym
-from collections import deque
 import math
+import numpy as np
+import random
+import tensorflow as tf
 import time
+
+from collections import deque
 
 from src.cartpole_learner import Learner
 
@@ -12,8 +13,8 @@ from src.cartpole_learner import Learner
 class Agent:
 
     def __init__(self, n_win_ticks=195, gamma=1.0, epsilon=1.0, epsilon_min=0.01,
-                 epsilon_log_decay=0.995, alpha=0.01, alpha_decay=0.01, batch_size=64, monitor=False):
-        self.memory = deque(maxlen=100000)
+                 epsilon_log_decay=0.995, alpha=0.01, alpha_decay=0.01, batch_size=64, monitor=False, task):
+        self.memory = deque(maxlen=10000)
         self.env = gym.make('CartPole-v0')
         if monitor: self.env = gym.wrappers.Monitor(self.env, '../data/cartpole-1', force=True)
         self.gamma = gamma
@@ -24,6 +25,8 @@ class Agent:
         self.alpha_decay = alpha_decay
         self.n_win_ticks = n_win_ticks
         self.batch_size = batch_size
+        self.writer = tf.summary.FileWriter('/tmp/cartpole')
+        self.task = task
 
         self.observation_space_shape = self.env.observation_space.shape
         self.nr_actions = self.env.action_space.n
@@ -81,6 +84,8 @@ class Agent:
             mean_score = np.mean(scores)
             if e % 100 == 0:
                 print('[Episode {}] - Mean survival time over last 100 episodes was {} ticks.'.format(e, mean_score))
+                summary = tf.Summary(value=[tf.Summary.Value(tag=f'score_{self.task}', simple_value=i)])
+                self.writer.add_summary(summary, e)
 
             self.replay(self.batch_size, sess)
 
