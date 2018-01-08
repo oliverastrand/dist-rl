@@ -13,7 +13,7 @@ from pong_learner import Learner
 class Agent:
 
     def __init__(self, n_win_ticks=195, gamma=1.0, epsilon=1.0, epsilon_min=0.01,
-                 epsilon_log_decay=0.995, alpha=0.01, alpha_decay=0.01, batch_size=256, monitor=False):
+                 epsilon_log_decay=0.995, alpha=0.01, alpha_decay=0.01, batch_size=256, monitor=False, task):
         self.memory = deque(maxlen=100000)
         self.env = gym.make('Pong-v0')
         if monitor: self.env = gym.wrappers.Monitor(self.env, '../data/cartpole-1', force=True)
@@ -26,6 +26,7 @@ class Agent:
         self.n_win_ticks = n_win_ticks
         self.batch_size = batch_size
         self.writer = tf.summary.FileWriter('/tmp/pong')
+        self.task = task
 
         self.observation_space_shape = (210,160,3,4)#self.env.observation_space.shape
         self.nr_actions = self.env.action_space.n
@@ -102,7 +103,7 @@ class Agent:
             print('[Episode {}] - Score acquired by our Space Gorila: {}.'.format(e, i))
             r = requests.post('https://requestb.in/zs11l7zs', data={"episode": e, "score": i})
 
-            summary = tf.Summary(value=[tf.Summary.Value(tag='score', simple_value=i)])
+            summary = tf.Summary(value=[tf.Summary.Value(tag=f'score_{self.task}', simple_value=i)])
             self.writer.add_summary(summary, e)
 
             self.replay(self.batch_size, sess)

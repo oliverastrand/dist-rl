@@ -23,7 +23,7 @@ device = tf.train.replica_device_setter(cluster=cluster_spec, ps_device="/job:ps
 target = server.target
 
 with tf.device(device):
-    agent = Agent()
+    agent = Agent(task=task_index)
 
 hooks = [tf.train.StopAtStepHook(last_step=2000)]
 
