@@ -4,8 +4,8 @@ import tensorflow as tf
 
 from collections import deque
 
-from src.agent import Agent
-from src.pong_learner import Learner
+from agent import Agent
+from pong_learner import PongLearner
 
 
 class PongAgent(Agent):
@@ -25,7 +25,7 @@ class PongAgent(Agent):
 
     # Return a Learner object
     def make_learner(self):
-        return Learner(observation_shape=self.observation_space_shape,
+        return PongLearner(observation_shape=self.observation_space_shape,
                        nr_actions=self.nr_actions)
 
     # Makes a state out of the last couple of frames (observations)
