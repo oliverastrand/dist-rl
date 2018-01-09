@@ -1,117 +1,49 @@
 import tensorflow as tf
 
-class Learner:
-
-    def __init__(self, options):
-
-        # We need to have a reference to the memory
-        self.memory = None
-
-        # This placeholder will be filled with experiences from the memory
-        self.input_state = tf.placeholder(tf.float32, shape=(None, options["env_size"][0], options["env_size"][1]))
-
-        # We generate one network that will be updated during training
-        # and one fixed network that will be the target values (updated periodically)
-        self.out_layer, self.weight_list = self.initialize_network(options["DNN"])
-        self.target_out_layer, self.target_weight_list = self.initialize_network(options["DNN"])
-
-        self.targets = tf.placeholder(tf.float32, shape=(None, options["env_actions"]))
-        self.loss = self.calc_loss(self.out_layer, self.targets, options["loss"])
-
-        init_op = tf.global_variables_initializer()
-
-        # Get our tensorflow session and initialize our variables
-        self.sess = tf.Session()
-        self.sess.run(init_op)
-
-    def predict(self, state):
-        """
-        Function that returns the predicted Q-value of each action for a given state
-        """
-
-        return self.sess.run(self.out_layer, feed_dict={self.input_state: state})
-
-    def predict_targets(self, state):
-        """
-        Function that returns the predicted Q-value of the target network for
-        each action for a given state
-        """
-        return self.sess.run(self.target_out_layer, feed_dict={self.input_state: state})
+from abc import ABC, abstractmethod
 
 
-    def calc_loss(self, outputs, targets, options):
-        """
-        Calculate the loss from outputs and targets, with given options
-        """
-        losses = {
-            'MSE': tf.losses.mean_squared_error,
-            'log_loss': tf.losses.log_loss,
-            'softmax_cross': tf.losses.softmax_cross_entropy,
-        }
-        return losses[options](targets, outputs)
+class Learner(ABC):
 
-    def calc_gradient(self, states, targets):
-        """
-        Function that calculates the gradient of the loss function w.r.t. the NN weights
-        """
-        loss = self.calc_loss(self.out_layer, targets, {})
-        gradients = tf.gradients(self.loss, self.weight_list)
-        print(states)
-        print(gradients)
-        print(self.loss)
-        return self.sess.run(gradients, feed_dict={self.input_state: states, self.targets: targets})
+    def __init__(self, observation_shape, nr_actions, alpha=0.01):
 
-    def update_regular_network(self, weights):
-        """
-        Method that updates the regular network
-        """
-        pass
+        # Create the tensorflow graph and needed operations
+        self.alpha = alpha
 
-    def update_target_network(self, weights):
-        """
-        Method that updates the target network
-        """
-        for i in range(len(weights)):
-            assign_op = self.target_weight_list[i].assign(weights[i])
-            self.sess.run(assign_op)
+        self.observation_shape = observation_shape
+        self.nr_actions = nr_actions
 
-    def initialize_network(self, options):
-        """
-        Initializes a neural network with the given options
-        """
-        nr_hidden = 5
-        input_size = 4 * 2
-        nr_outputs = 3
+        self.states = tf.placeholder(dtype=tf.float32, shape=(None,) + observation_shape)
+        self.targets = tf.placeholder(dtype=tf.float32, shape=(None, nr_actions))
 
-        def weight_variable(shape):
-            initial = tf.truncated_normal(shape, stddev=0.1)
-            return tf.Variable(initial)
+        self.predictions, self.weight_list = self.init_neural_net(self.states)
 
-        def bias_variable(shape):
-            initial = tf.constant(0.1, shape=shape)
-            return tf.Variable(initial)
+        loss = tf.losses.mean_squared_error(labels=self.targets, predictions=self.predictions)
 
-        bias1 = bias_variable((nr_hidden,))
-        wei1 = weight_variable((input_size, nr_hidden))
-        bias2 = bias_variable((nr_outputs,))
-        wei2 = weight_variable((nr_hidden, nr_outputs))
+        optimizer = tf.train.AdamOptimizer(learning_rate=self.alpha)
+        self.train_op = optimizer.minimize(loss=loss)
 
-        weight_list = []
-        weight_list.append(wei1)
-        weight_list.append(bias1)
-        weight_list.append(wei2)
-        weight_list.append(bias2)
+        self.target_predictions, self.target_weight_list = self.init_neural_net(self.states)
 
-        input_flat = tf.reshape(self.input_state, (-1, input_size))
-        hidden = tf.nn.relu(tf.matmul(input_flat, wei1) + bias1)
-        out_layer = tf.matmul(hidden, wei2) + bias2
+        self.init_op = tf.global_variables_initializer()
 
-        return out_layer, weight_list
+    # Initallize the parameters with a given session
+    def init_params(self, sess):
+        sess.run(self.init_op)
 
-    # Temporary method for testing the algorithm
-    def train(self, states, targets):
-        optimizer = tf.train.GradientDescentOptimizer(0.01)
-        train_opt = optimizer.minimize(self.loss)
+    # Predict Q-values with the regular network
+    def predict(self, state, sess):
+        return sess.run(self.predictions, feed_dict={self.states: state})
 
-        self.sess.run([train_opt], feed_dict={self.input_state: states, self.targets: targets})
+    # Predict the Q-values with the target network
+    def predict_targets(self, state, sess):
+        return sess.run(self.target_predictions, feed_dict={self.states: state})
 
+    # Fit the network to data generated by the Bellman Eq.
+    def fit(self, states, targets, sess):
+        sess.run(self.train_op, feed_dict={self.states: states, self.targets: targets})
+
+    # Method for designing the neural network, implemented by each subclass.
+    @abstractmethod
+    def init_neural_net(self, input_values):
+        return None, None
