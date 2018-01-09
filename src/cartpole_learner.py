@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from src.learner import Learner
+from learner import Learner
 
 
 class CartPoleLearner(Learner):
