@@ -2,8 +2,8 @@ import numpy as np
 import sys
 import tensorflow as tf
 
-from src.cartpole_agent import CartPoleAgent
-from src.pong_agent import PongAgent
+from cartpole_agent import CartPoleAgent
+from pong_agent import PongAgent
 
 # Change this line to determine which game to play
 Agent = CartPoleAgent
