@@ -2,8 +2,8 @@ import gym
 import numpy as np
 import tensorflow as tf
 
-from src.agent import Agent
-from src.cartpole_learner import CartPoleLearner as Learner
+from agent import Agent
+from cartpole_learner import CartPoleLearner as Learner
 
 
 class CartPoleAgent(Agent):
