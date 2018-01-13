@@ -14,5 +14,4 @@ The repository is cloned in the `/home` folder. If you need to update it again, 
 We can have concurrent users in the same instance, but we should still sync up because it can mess up the machine if intensive work is done concurrently in the machine.
 
 ### Important notice
-To avoid unnecessary billing, the AWS instance should be stopped when it's not actively used. Ignore the warnings, it can be restarted without losing any data.
-
+To avoid unnecessary billing, the AWS instance should be stopped when it's not actively used. Ignore the warnings, it can be restarted without losing any data...
